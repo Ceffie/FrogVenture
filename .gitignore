@@ -2,3 +2,5 @@ FrogVenture/Library/*
 FrogVenture/Temp/*
 FrogVenture/Logs/*
 FrogVenture/UserSettings/*
+/FrogVenture/Assembly-CSharp.csproj
+*.log
