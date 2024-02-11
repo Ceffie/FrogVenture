@@ -10,6 +10,9 @@ public class PlayerShooter : MonoBehaviour
     public GameObject ObjTongue;
     public GameObject ShootPosition;
 
+    public TongueSlurp tongueSlurp;
+    public int TotalEaten = 0;
+
     private float TongueSpeed = 7f;
 
     // get the tongue timer working
@@ -37,13 +40,28 @@ public class PlayerShooter : MonoBehaviour
                 TongueTimer = 0f;
                 TongueShooting = false;
                 TongueRetreating = true;
+                CheckForTongueBugs();
             }
         }
 
         if (TongueRetreating)
         {
-            // retreat that tongue somehow
+            TongueRetreating = false;
+
+            //resettongue
+            ObjTongue.transform.localPosition = Vector2.zero;
+            ObjTongue.transform.localRotation = Quaternion.identity;
+            rayIsSet = false;
+
+            //enemy still gotta do something here, but then:
+            YourTurn = true;
         }
+    }
+
+    void CheckForTongueBugs()
+    {
+        TotalEaten += tongueSlurp.BugOnTongueCounter;
+        tongueSlurp.BugOnTongueCounter = 0;
     }
 
     // Update is called once per frame
@@ -107,6 +125,7 @@ public class PlayerShooter : MonoBehaviour
     {
         dir = (ObjTongue.transform.position - new Vector3(pHit.point.x, pHit.point.y, 0f)).normalized;
 
+        //Move the tongue
         ObjTongue.transform.position -= dir * TongueSpeed * Time.deltaTime;
 
         bounceDistance = Vector3.Distance(ObjTongue.transform.position, new Vector3(pHit.point.x, pHit.point.y, ObjTongue.transform.position.z));

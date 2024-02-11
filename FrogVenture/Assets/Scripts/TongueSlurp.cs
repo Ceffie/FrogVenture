@@ -4,25 +4,14 @@ using UnityEngine;
 
 public class TongueSlurp : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int BugOnTongueCounter = 0;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Enemy")
         {
-            Debug.Log("Splat");
-            Instantiate(collision.GetComponent<Sprite>(), transform.position, transform.rotation, transform);
             collision.gameObject.SetActive(false);
+            BugOnTongueCounter++;
         }
     }
 }
