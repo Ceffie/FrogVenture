@@ -72,10 +72,6 @@ public class PlayerShooter : MonoBehaviour
 
     private Vector3 dir;
 
-    private RaycastHit2D previousHit;
-    private Vector2 previousPoint;
-    private RaycastHit2D nextHit;
-    private Vector2 nextPoint;
     private RaycastHit2D firstHit;
 
     private float bounceDistance;
@@ -83,26 +79,26 @@ public class PlayerShooter : MonoBehaviour
     private bool rayIsSet = false;
     private Ray2D ray;
 
+    private float wallDist = .2f;
+
     private void ShootTongue()
     {
         if (!rayIsSet)
         {
             rayIsSet = true;
-            ray = new Ray2D(transform.position, transform.right);
-            firstHit = Physics2D.Raycast(transform.position, transform.right);
+            ray = new Ray2D(ObjTongue.transform.position, transform.right);
+            firstHit = Physics2D.Raycast(ObjTongue.transform.position, transform.right);
         }
-
-        
 
         if (Bounces % 2 == 0)
         {
             //Debug.Log("PREBOUNCE: " + firstHit.point);
-            //Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
+            Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
             firstHit = TongueBouncing(firstHit);
         } else if (Bounces % 2 == 1)
         {
             //Debug.Log("Bounced Baby: " + firstHit.point);
-            //Debug.DrawRay(ray.origin, ray.direction * 1000, Color.blue);
+            Debug.DrawRay(ray.origin, ray.direction * 1000, Color.blue);
             firstHit = TongueBouncing(firstHit);
         }
     }
@@ -113,26 +109,24 @@ public class PlayerShooter : MonoBehaviour
 
         ObjTongue.transform.position -= dir * TongueSpeed * Time.deltaTime;
 
-        bounceDistance = Vector3.Distance(ObjTongue.transform.position, new Vector3(pHit.point.x, pHit.point.y, 0f));
+        bounceDistance = Vector3.Distance(ObjTongue.transform.position, new Vector3(pHit.point.x, pHit.point.y, ObjTongue.transform.position.z));
 
-        if (bounceDistance < .1f)
+        if (bounceDistance < wallDist)
         {
-            // init nHit
-            var nHit = Physics2D.Raycast(pHit.point, transform.right);
 
             //CheckCollider pHit and edit nHit accordingly
             CheckColliderPoint(pHit);
             dir = (deflectDirection).normalized;
-            //Debug.Log("objtongue pos: " + ObjTongue.transform.position + " deflDir: " +  deflectDirection + " dir: " + dir);
-            nHit = Physics2D.Raycast(ObjTongue.transform.position, dir);
+            // Debug.Log("objtongue pos: " + ObjTongue.transform.position + " deflDir: " +  deflectDirection + " dir: " + dir);
+            var nHit = Physics2D.Raycast(ObjTongue.transform.position, dir);
 
             //create new ray
             ray = new Ray2D(ObjTongue.transform.position, deflectDirection);
 
             //rot tonguye
-            ObjTongue.transform.rotation = deflectRotation;
+            ObjTongue.transform.rotation = Quaternion.LookRotation(forward: Vector3.forward, upwards: nHit.point); // AAAA DOET HET NIET
 
-            //check with logs
+            ////check with logs
             //Debug.Log("deflectRot: " + deflectRotation);
             //Debug.Log("BOING " + Bounces + dir);
             //Debug.Log("dabaunce pHit: " + pHit.point + "nHit" + nHit.point);
