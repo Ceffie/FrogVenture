@@ -10,7 +10,7 @@ public class PlayerShooter : MonoBehaviour
     public GameObject ObjTongue;
     public GameObject ShootPosition;
 
-    private float TongueSpeed = 5f;
+    private float TongueSpeed = 7f;
 
     // get the tongue timer working
     public bool TongueShooting = false;
@@ -87,8 +87,8 @@ public class PlayerShooter : MonoBehaviour
     {
         if (!rayIsSet)
         {
-            ray = new Ray2D(transform.position, transform.right);
             rayIsSet = true;
+            ray = new Ray2D(transform.position, transform.right);
             firstHit = Physics2D.Raycast(transform.position, transform.right);
         }
 
@@ -96,66 +96,15 @@ public class PlayerShooter : MonoBehaviour
 
         if (Bounces % 2 == 0)
         {
+            //Debug.Log("PREBOUNCE: " + firstHit.point);
+            //Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
             firstHit = TongueBouncing(firstHit);
-            Debug.Log("PREBOUNCE: " + firstHit.point);
-
         } else if (Bounces % 2 == 1)
         {
-            Debug.Log("Bounced Baby: " + firstHit.point);
+            //Debug.Log("Bounced Baby: " + firstHit.point);
+            //Debug.DrawRay(ray.origin, ray.direction * 1000, Color.blue);
+            firstHit = TongueBouncing(firstHit);
         }
-
-        //if (Bounces % 2 == 0)
-        //{
-        //    //    ObjTongue.transform.rotation = deflectRotation;
-        //    if (!previousHit)
-        //    {
-        //        previousHit = firstHit;
-        //        previousPoint = firstHit.point;
-        //        CheckColliderPoint(firstHit);
-        //    }
-
-        //    dir = (ObjTongue.transform.position - new Vector3(previousPoint.x, previousPoint.y, 0f)).normalized;
-
-        //    ObjTongue.transform.position = dir * TongueSpeed * Time.deltaTime;
-
-        //    bounceDistance = Vector3.Distance(ObjTongue.transform.position, new Vector3(previousHit.point.x, previousHit.point.y, ObjTongue.transform.position.z));
-
-        //    Debug.DrawRay(ObjTongue.transform.position, dir *1000, Color.red);
-
-        //    if (bounceDistance < .1f)
-        //    {
-        //        Bounces++;
-        //        nextHit = Physics2D.Raycast(previousPoint, transform.right);
-        //        CheckColliderPoint(nextHit);
-        //        dir = -deflectDirection;
-        //        Debug.Log("BOING " + Bounces + dir);
-        //    }
-        //} else if (Bounces % 2 == 1)
-        //{
-        //    //    ObjTongue.transform.rotation = deflectRotation;
-        //    dir = (ObjTongue.transform.position - new Vector3(nextHit.point.x, nextHit.point.y, 0f)).normalized;
-
-        //    ObjTongue.transform.position = dir * TongueSpeed * Time.deltaTime;
-
-        //    bounceDistance = Vector3.Distance(ObjTongue.transform.position, new Vector3(nextHit.point.x, nextHit.point.y, ObjTongue.transform.position.z));
-
-        //    Debug.DrawRay(ObjTongue.transform.position, dir * 1000, Color.red);
-
-        //    if (bounceDistance < .1f)
-        //    {
-        //        Bounces++;
-        //        previousHit = Physics2D.Raycast(nextPoint, transform.right);
-        //        CheckColliderPoint(previousHit);
-        //        dir = -deflectDirection;
-        //        Debug.Log("BOING " + Bounces + dir);
-        //    }
-        //}
-
-        //if (Bounces == 1)
-        //{
-        //    ObjTongue.transform.position -= dir * TongueSpeed * Time.deltaTime;
-        //}
-
     }
 
     private RaycastHit2D TongueBouncing(RaycastHit2D pHit)
@@ -166,18 +115,30 @@ public class PlayerShooter : MonoBehaviour
 
         bounceDistance = Vector3.Distance(ObjTongue.transform.position, new Vector3(pHit.point.x, pHit.point.y, 0f));
 
-        Debug.DrawRay(ObjTongue.transform.position, dir * 1000, Color.red);
-        
         if (bounceDistance < .1f)
         {
+            // init nHit
             var nHit = Physics2D.Raycast(pHit.point, transform.right);
-            CheckColliderPoint(nHit);
+
+            //CheckCollider pHit and edit nHit accordingly
+            CheckColliderPoint(pHit);
+            dir = (deflectDirection).normalized;
+            //Debug.Log("objtongue pos: " + ObjTongue.transform.position + " deflDir: " +  deflectDirection + " dir: " + dir);
+            nHit = Physics2D.Raycast(ObjTongue.transform.position, dir);
+
+            //create new ray
+            ray = new Ray2D(ObjTongue.transform.position, deflectDirection);
+
+            //rot tonguye
             ObjTongue.transform.rotation = deflectRotation;
-            ray = new Ray2D(ObjTongue.transform.position, transform.right);
-            dir = -deflectDirection;
-            Debug.Log("BOING " + Bounces + dir);
+
+            //check with logs
+            //Debug.Log("deflectRot: " + deflectRotation);
+            //Debug.Log("BOING " + Bounces + dir);
+            //Debug.Log("dabaunce pHit: " + pHit.point + "nHit" + nHit.point);
+
+            //finish off checks and returns
             Bounces++;
-            Debug.Log("dabaunce pHit: " + pHit.point + "nHit" + nHit.point);
             return nHit;
         }
 
@@ -186,18 +147,15 @@ public class PlayerShooter : MonoBehaviour
 
     void CheckColliderPoint(RaycastHit2D hit)
     {
-        if (hit.collider)
+        if (hit.collider.tag == "Wall")
         {
-            if (hit.collider.tag == "Wall")
-            {
-                // Get a rotation to go from our ray direction (negative, so coming from the wall),
-                // to the normal of whatever surface we hit.
-                deflectRotation = Quaternion.FromToRotation(-ray.direction, hit.normal);
+            // Get a rotation to go from our ray direction (negative, so coming from the wall),
+            // to the normal of whatever surface we hit.
+            deflectRotation = Quaternion.FromToRotation(-ray.direction, hit.normal);
 
-                // We then take that rotation and apply it to the same normal vector to basically
-                // mirror that angle difference.
-                deflectDirection = deflectRotation * hit.normal;
-            }
+            // We then take that rotation and apply it to the same normal vector to basically
+            // mirror that angle difference.
+            deflectDirection = deflectRotation * hit.normal;
         }
     }
 }

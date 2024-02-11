@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\PlayerScript.cs" />
     <Compile Include="Assets\PlayerShooter.cs" />
+    <Compile Include="Assets\Scripts\TongueSlurp.cs" />
     <Compile Include="Assets\TongueMover.cs" />
   </ItemGroup>
   <ItemGroup>
