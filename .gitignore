@@ -4,3 +4,5 @@ FrogVenture/Logs/*
 FrogVenture/UserSettings/*
 /FrogVenture/Assembly-CSharp.csproj
 *.log
+FrogVenture/ProjectSettings/Packages/com.unity.services.core/Settings.json
+FrogVenture/Logs/shadercompiler-UnityShaderCompiler.exe0.log
